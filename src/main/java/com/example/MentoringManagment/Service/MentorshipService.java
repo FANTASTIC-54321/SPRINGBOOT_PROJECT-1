@@ -48,7 +48,7 @@ public class MentorshipService {
         }
 
         // Prevent duplicate assignments
-        if (!mentorshipRepository.findByStudentUserId(studentId).isEmpty()) {
+        if (mentorshipRepository.findByStudent_UserId(studentId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "This student is already assigned.");
         }
 
