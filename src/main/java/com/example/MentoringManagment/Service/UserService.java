@@ -1,6 +1,6 @@
 package com.example.MentoringManagment.Service;
 
-import com.example.MentoringManagment.DTO.UserDTO;
+import com.example.MentoringManagment.DTO.*;
 import com.example.MentoringManagment.Entity.User;
 import com.example.MentoringManagment.Mapper.UserMapper;
 import com.example.MentoringManagment.Repository.UserRepository;
@@ -17,16 +17,50 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserDTO registerUser(UserDTO dto) {
-        if (userRepository.existsByUsername(dto.getUsername()) || userRepository.existsByEmail(dto.getEmail())) {
-            throw new EntityExistsException("User Already Exist");
-        }
+//    @Autowired
+//    private PasswordEncoder passwordEncoder;
 
-        User userEntity = UserMapper.toEntity(dto);
-        User savedEntity = userRepository.save(userEntity);
-        return UserMapper.toDTO(savedEntity);
+
+//    public UserDTO registerUser(UserDTO dto) {
+//        if (userRepository.existsByUsername(dto.getUsername()) || userRepository.existsByEmail(dto.getEmail())) {
+//            throw new EntityExistsException("User Already Exist");
+//        }
+//
+//        User userEntity = UserMapper.toEntity(dto);
+//        User savedEntity = userRepository.save(userEntity);
+//        return UserMapper.toDTO(savedEntity);
+//    }
+
+    public MenteeResponseDTO registerMentee(MenteeRegisterDTO dto) {
+        validateUniqueness(dto.getUsername(), dto.getEmail(), dto.getPhone());
+
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        user.setDepartment(dto.getDepartment());
+        user.setRole("MENTEE");
+        user.setPhone(dto.getPhone());
+        user.setSemester(dto.getSemester());
+
+        return UserMapper.toResponseDTO(userRepository.save(user));
     }
 
+
+    public MentorResponseDTO registerMentor(MentorRegisterDTO dto) {
+        validateUniqueness(dto.getUsername(), dto.getEmail(), dto.getPhone());
+
+        User user = new User();
+        user.setUsername(dto.getUsername());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        user.setDepartment(dto.getDepartment());
+        user.setRole("MENTOR");
+        user.setPhone(dto.getPhone());
+        user.setSemester(null);
+
+        return UserMapper.toMentorResponseDTO(userRepository.save(user));
+    }
 
     public List<User> getAllUsers(){
         return userRepository.findAll();
@@ -35,6 +69,12 @@ public class UserService {
     public User getUserById(long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with ID: " + id));
+    }
+
+    private void validateUniqueness(String username, String email, Long phone) {
+        if (userRepository.existsByUsernameOrEmailOrPhone(username, email, phone)) {
+            throw new EntityExistsException("User already exists with same username, email, or phone");
+        }
     }
 
 //    public UserDTO updateUser(Long userId, UserUpdateDTO dto) {

@@ -1,15 +1,15 @@
 package com.example.MentoringManagment.DTO;
 
-
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+@NoArgsConstructor
+public class MenteeRegisterDTO {
+
     @NotBlank(message = "Username is mandatory")
     private String username;
 
@@ -17,10 +17,13 @@ public class UserDTO {
     @NotBlank(message = "Email is mandatory")
     private String email;
 
-    private String role;
+    @NotBlank(message = "Password is mandatory")
+    private String password;
 
     @NotBlank(message = "Department is mandatory")
     private String department;
+
+    private String role;
 
     @NotNull(message = "Phone number is mandatory")
     private Long phone;

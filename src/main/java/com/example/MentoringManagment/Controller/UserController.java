@@ -1,11 +1,12 @@
 package com.example.MentoringManagment.Controller;
 
 
-import com.example.MentoringManagment.DTO.UserDTO;
+import com.example.MentoringManagment.DTO.*;
 import com.example.MentoringManagment.Entity.User;
 import com.example.MentoringManagment.Mapper.UserMapper;
 import com.example.MentoringManagment.Service.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,16 +24,22 @@ public class UserController {
     private UserService userService;
 
 
-    @PostMapping("/register")
-    public ResponseEntity<UserDTO> registerUser (@RequestBody UserDTO userDTO){
+    @PostMapping("/register/mentor")
+    public ResponseEntity<MentorResponseDTO> registerMentor(@Valid @RequestBody MentorRegisterDTO dto) {
         try {
-            UserDTO registeredUser = userService.registerUser(userDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(registeredUser);
-
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerMentor(dto));
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Mentor registration failed", e);
         }
+    }
 
+    @PostMapping("/register/mentee")
+    public ResponseEntity<MenteeResponseDTO> registerMentee(@Valid @RequestBody MenteeRegisterDTO dto) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.registerMentee(dto));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Mentee registration failed", e);
+        }
     }
 
     @GetMapping("/getAll")
@@ -46,7 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/getAll/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable long id) {
+    public ResponseEntity<UserDTO> getUserById(@Valid @PathVariable long id) {
         try {
             User user = userService.getUserById(id);
             UserDTO dto = UserMapper.toDTO(user);

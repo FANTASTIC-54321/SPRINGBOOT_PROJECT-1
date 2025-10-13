@@ -1,5 +1,7 @@
 package com.example.MentoringManagment.Mapper;
 
+import com.example.MentoringManagment.DTO.MenteeResponseDTO;
+import com.example.MentoringManagment.DTO.MentorResponseDTO;
 import com.example.MentoringManagment.DTO.UserDTO;
 import com.example.MentoringManagment.Entity.User;
 
@@ -25,6 +27,27 @@ public class UserMapper {
         dto.setPhone(user.getPhone());
         dto.setSemester(user.getSemester());
         return dto;
+    }
+
+    public static MenteeResponseDTO toResponseDTO(User user) {
+        return new MenteeResponseDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getDepartment(),
+                user.getPhone(),
+                user.getSemester()
+        );
+    }
+
+    public static MentorResponseDTO toMentorResponseDTO(User user) {
+        return new MentorResponseDTO(
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getDepartment(),
+                user.getPhone()
+        );
     }
 }
 

@@ -21,20 +21,25 @@ public class User {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false , unique = true)
     private String email;
 
     @Column(name = "role", nullable = false)
     private String role;
 
     @Column(name = "department", nullable = false)
-    private String Department;
+    private String department;
 
     @Column(name = "phone",nullable = false,unique = true)
-    private Long Phone;
+    private Long phone;
 
-    @Column(name = "semester",nullable = false)
-    private int semester;
+    @Column(name = "semester",nullable = true)
+    private Integer semester;
+
+    @Column(name = "password", nullable = false)
+    private String password;
+
+
 }
 
 
