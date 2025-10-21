@@ -1,12 +1,14 @@
 package com.example.MentoringManagment.Service;
 
 import com.example.MentoringManagment.DTO.NoticeRequestDTO;
+import com.example.MentoringManagment.DTO.NotificationRequestDTO;
 import com.example.MentoringManagment.Entity.Mentorship;
 import com.example.MentoringManagment.Entity.Notice;
 import com.example.MentoringManagment.Entity.User;
 import com.example.MentoringManagment.Repository.MentorshipRepository;
 import com.example.MentoringManagment.Repository.NoticeRepository;
 import com.example.MentoringManagment.Repository.UserRepository;
+import com.example.MentoringManagment.Request.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +44,9 @@ public class NoticeService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public Notice createNotice(Long mentorId, NoticeRequestDTO request) throws IOException {
         // Find mentor user from DB (reuse the User entity)
         System.out.println("Received Notice upload: title=" + request.getTitle() +
@@ -49,6 +54,10 @@ public class NoticeService {
 
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new RuntimeException("Mentor not found"));
+
+        Mentorship mentorship = mentorshipRepository.findByStudent_UserId(mentorId)
+                .orElseThrow(() -> new RuntimeException("Mentorship not found"));
+
         if (!"MENTOR".equalsIgnoreCase(mentor.getRole())){
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN,"User must be a mentor");
         }
@@ -84,6 +93,12 @@ public class NoticeService {
         try {
             Notice savedNotice = noticeRepository.save(notice);
             System.out.println("Notice saved successfully with ID: " + savedNotice.getId());
+            NotificationRequestDTO dto = new NotificationRequestDTO();
+            dto.setReceiverId(mentorship.getStudent().getUserId());
+            dto.setType(NotificationType.NOTICE);
+            dto.setMessage("New notice posted: " + request.getTitle());
+            notificationService.createNotification(dto);
+
             return savedNotice;
         } catch (Exception e) {
             System.err.println("Failed to save Notice: " + e.getMessage());

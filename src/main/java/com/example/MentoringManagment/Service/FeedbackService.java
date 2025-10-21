@@ -3,6 +3,7 @@ package com.example.MentoringManagment.Service;
 import com.example.MentoringManagment.DTO.FeedbackDTO;
 import com.example.MentoringManagment.DTO.FeedbackResponseDTO;
 import com.example.MentoringManagment.DTO.FeedbackUpdateDTO;
+import com.example.MentoringManagment.DTO.NotificationRequestDTO;
 import com.example.MentoringManagment.Entity.FeedBack;
 import com.example.MentoringManagment.Entity.Mentorship;
 import com.example.MentoringManagment.Entity.Tasks;
@@ -12,6 +13,7 @@ import com.example.MentoringManagment.Repository.FeedbackRepository;
 import com.example.MentoringManagment.Repository.MentorshipRepository;
 import com.example.MentoringManagment.Repository.TaskRepository;
 import com.example.MentoringManagment.Repository.UserRepository;
+import com.example.MentoringManagment.Request.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,8 @@ public class FeedbackService {
     private TaskRepository taskRepository;
     @Autowired
     private MentorshipRepository mentorshipRepository;
+    @Autowired
+    private NotificationService notificationService;
 
 
     public FeedbackResponseDTO createFeedback(FeedbackDTO request){
@@ -58,6 +62,12 @@ public class FeedbackService {
         feedBack.setMentorship(mentorship);
         feedBack.setRating(request.getRating());
         feedBack.setComments(request.getComments());
+
+        NotificationRequestDTO dto = new NotificationRequestDTO();
+        dto.setReceiverId(student.getUserId());
+        dto.setMessage(String.format("Feedback added by %s for task: %s", mentor.getUsername(), task.getTitle()));
+        dto.setType(NotificationType.FEEDBACK);
+        notificationService.createNotification(dto);
 
         return FeedbackMapper.toDTO(feedbackRepository.save(feedBack));
 
@@ -87,6 +97,7 @@ public class FeedbackService {
         if(request.getComments() != null){
             feedBack.setComments(request.getComments());
         }
+
 
         return FeedbackMapper.toDTO(feedbackRepository.save(feedBack));
 

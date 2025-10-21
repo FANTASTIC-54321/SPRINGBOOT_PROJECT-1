@@ -1,6 +1,7 @@
 package com.example.MentoringManagment.Service;
 
 import com.example.MentoringManagment.DTO.NoteRequestDTO;
+import com.example.MentoringManagment.DTO.NotificationRequestDTO;
 import com.example.MentoringManagment.Entity.Mentorship;
 import com.example.MentoringManagment.Entity.Note;
 import com.example.MentoringManagment.Entity.Notice;
@@ -9,6 +10,7 @@ import com.example.MentoringManagment.Repository.MentorshipRepository;
 import com.example.MentoringManagment.Repository.NoteRepository;
 import com.example.MentoringManagment.Repository.NoticeRepository;
 import com.example.MentoringManagment.Repository.UserRepository;
+import com.example.MentoringManagment.Request.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,12 +49,19 @@ public class NoteService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public Note createNote(Long mentorId, NoteRequestDTO request) throws IOException {
         System.out.println("Received Notice upload: title=" + request.getTitle() +
                 ", file=" + (request.getPdfFile() != null ? request.getPdfFile().getOriginalFilename() : "null"));
 
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Mentor Not Found"));
+
+        Mentorship mentorship = mentorshipRepository.findByStudent_UserId(mentor.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mentorship not found"));
+
         if(!"MENTOR".equalsIgnoreCase(mentor.getRole())){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,"User must be a mentor");
         }
@@ -82,6 +91,13 @@ public class NoteService {
         try{
             Note savedNote = noteRepository.save(note);
             System.out.println("Note saved successfully with ID: " + savedNote.getId());
+
+            NotificationRequestDTO dto = new NotificationRequestDTO();
+            dto.setReceiverId(mentorship.getStudent().getUserId());
+            dto.setType(NotificationType.NOTE);
+            dto.setMessage("New note uploaded: " + request.getTitle());
+            notificationService.createNotification(dto);
+
             return savedNote;
         }
         catch (Exception e){

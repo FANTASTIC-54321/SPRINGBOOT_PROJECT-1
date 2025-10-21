@@ -85,6 +85,11 @@ public class UserService {
 //        return userRepository.save(user);
 //    }
 
+    // List<String> validRoles = List.of("ADMIN", "MENTOR", "MENTEE");
+    //if (!validRoles.contains(dto.getRole().toUpperCase())) {
+    //    throw new IllegalArgumentException("Invalid role");
+    //}
+
 
 
 }

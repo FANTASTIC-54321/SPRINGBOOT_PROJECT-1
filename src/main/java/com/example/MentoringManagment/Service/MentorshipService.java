@@ -1,10 +1,12 @@
 package com.example.MentoringManagment.Service;
 
 import com.example.MentoringManagment.DTO.MentorshipDTO;
+import com.example.MentoringManagment.DTO.NotificationRequestDTO;
 import com.example.MentoringManagment.Entity.Mentorship;
 import com.example.MentoringManagment.Entity.User;
 import com.example.MentoringManagment.Mapper.MentorshipMapper;
 import com.example.MentoringManagment.Repository.UserRepository;
+import com.example.MentoringManagment.Request.NotificationType;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,9 @@ public class MentorshipService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public Mentorship assignMentorship(Long mentorId, Long studentId){
 
@@ -57,6 +62,13 @@ public class MentorshipService {
         mentorship.setStudent(student);
         mentorship.setMentorshipStartDate(LocalDate.now());
         mentorship.setActive(true);
+
+        NotificationRequestDTO dto = new NotificationRequestDTO();
+        dto.setReceiverId(studentId);
+        dto.setType(NotificationType.MENTORSHIP);
+        dto.setMessage("You have been assigned a mentor: " + mentor.getUsername());
+        notificationService.createNotification(dto);
+
 
         return mentorshipRepository.save(mentorship);
     }

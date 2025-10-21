@@ -1,0 +1,38 @@
+package com.example.MentoringManagment.Entity;
+
+import com.example.MentoringManagment.Request.AppointmentStatus;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "appointment")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class Appointment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "mentor_id", nullable = false)
+    private User mentor;
+
+    @OneToOne
+    @JoinColumn(name = "student_id", nullable = false)
+    private User student;
+
+    @Column(name = "requested_time", nullable = false)
+    private LocalDateTime requestedTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private AppointmentStatus status;
+
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+}

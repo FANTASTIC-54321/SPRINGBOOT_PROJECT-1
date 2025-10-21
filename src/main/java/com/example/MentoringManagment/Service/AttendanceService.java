@@ -3,6 +3,7 @@ package com.example.MentoringManagment.Service;
 import com.example.MentoringManagment.DTO.AttendanceDTO;
 import com.example.MentoringManagment.DTO.AttendancePatchDTO;
 import com.example.MentoringManagment.DTO.AttendanceResponseDTO;
+import com.example.MentoringManagment.DTO.NotificationRequestDTO;
 import com.example.MentoringManagment.Entity.Attendance;
 import com.example.MentoringManagment.Entity.Mentorship;
 import com.example.MentoringManagment.Entity.User;
@@ -10,6 +11,7 @@ import com.example.MentoringManagment.Mapper.GETAttendanceMapper;
 import com.example.MentoringManagment.Repository.AttendanceRepository;
 import com.example.MentoringManagment.Repository.MentorshipRepository;
 import com.example.MentoringManagment.Repository.UserRepository;
+import com.example.MentoringManagment.Request.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,9 @@ public class AttendanceService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
 //    @Autowired
 //    private GETAttendanceMapper getAttendanceMapper;
@@ -59,6 +64,13 @@ public class AttendanceService {
         attendance.setMentorship(mentorship);
         attendance.setSessionDate(request.getSessionDate());
         attendance.setPresent(request.getIsPresent());
+
+        NotificationRequestDTO dto = new NotificationRequestDTO();
+        dto.setReceiverId(mentorship.getStudent().getUserId());
+        dto.setType(NotificationType.ATTENDANCE);
+        dto.setMessage(String.format("Your attendance for %s was marked as %s",
+                request.getSessionDate(), request.getIsPresent() ? "PRESENT" : "ABSENT"));
+        notificationService.createNotification(dto);
 
         return attendanceRepository.save(attendance);
 
