@@ -39,6 +39,9 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Column(name = "is_mentor_approved")
+    private Boolean isMentorApproved = false;
+
 
 }
 
